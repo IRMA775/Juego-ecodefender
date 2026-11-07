@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eco-Defender: Misión Planeta Clean</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --primary: #00ffcc;
+            --secondary: #ff0055;
+            --accent: #ffcc00;
+            --panel-bg: rgba(16, 24, 48, 0.85);
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: var(--font-family);
+            color: #fff;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0,255,204,0.5);
+        }
+
+        .hud-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .health-bar-container {
+            width: 150px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .health-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff0055, #00ffcc);
+            transition: width 0.2s ease;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 10, 19, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .overlay.hidden {
+            display: none;
+        }
+
+        .menu-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        p.subtitle {
+            color: #aaa;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ffcc, #0099ff);
+            border: none;
+            color: #000;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 204, 0.1);
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .shop-item.equipped {
+            border-color: var(--accent);
+            background: rgba(255, 204, 0, 0.1);
+        }
+
+        .shop-item h4 {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .shop-item .price {
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .toast-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .toast {
+            background: rgba(16, 24, 48, 0.95);
+            border-left: 4px solid var(--accent);
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            animation: slideIn 0.3s ease forwards;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .touch-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: none;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: auto;
+        }
+
+        .joystick-zone {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .fire-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 0, 85, 0.4);
+            border: 2px solid var(--secondary);
+            color: #fff;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .touch-controls { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <div class="ui-layer">
+            <div class="hud">
+                <div class="hud-card">
+                    <div>ENERGÍA</div>
+                    <div class="health-bar-container">
+                        <div id="health-bar" class="health-bar"></div>
+                    </div>
+                </div>
+                <div class="hud-card" style="text-align: right;">
+                    <div>PUNTAJE: <span id="score-val" style="color:var(--primary)">0</span></div>
+                    <div style="font-size:0.9rem; color:var(--accent);">CRISTALES: <span id="crystals-val">0</span></div>
+                </div>
+            </div>
+
+            <div class="touch-controls">
+                <div id="touch-move" class="joystick-zone"></div>
+                <div id="touch-fire" class="fire-btn">FUEGO</div>
+            </div>
+        </div>
+
+        <!-- MENU INICIO -->
+        <div id="menu-overlay" class="overlay">
+            <div class="menu-card">
+                <h1>Eco-Defender</h1>
+                <p class="subtitle">Misión Planeta Clean v1.0</p>
+                <button class="btn" onclick="game.start()">JUGAR</button>
+                <button class="btn btn-secondary" onclick="ui.toggleShop(true)">HANGAR / TIENDA</button>
+                <button class="btn btn-secondary" onclick="ui.toggleAchievements(true)">LOGROS</button>
+            </div>
+        </div>
+
+        <!-- MENU TIENDA -->
+        <div id="shop-overlay" class="overlay hidden">
+            <div class="menu-card">
+                <h1>Hangar de Naves</h1>
+                <p class="subtitle">Cristales Disponibles: <span id="shop-crystals" style="color:var(--accent)">0</span></p>
+                <div class="shop-grid" id="shop-container"></div>
+                <button class="btn btn-secondary" onclick="ui.toggleShop(false)">VOLVER</button>
+            </div>
+        </div>
+
+        <!-- MENU LOGROS -->
+        <div id="achievements-overlay" class="overlay hidden">
+            <div class="menu-card">
+                <h1>Logros</h1>
+                <div class="shop-grid" id="achievements-container" style="grid-template-columns:1fr;"></div>
+                <button class="btn btn-secondary" onclick="ui.toggleAchievements(false)">VOLVER</button>
+            </div>
+        </div>
+
+        <!-- GAMEOVER -->
+        <div id="gameover-overlay" class="overlay hidden">
+            <div class="menu-card">
+                <h1 style="color:var(--secondary)">MISION FALLIDA</h1>
+                <p class="subtitle" id="gameover-stats">Puntaje Final: 0</p>
+                <button class="btn" onclick="game.start()">REINTENTAR</button>
+                <button class="btn btn-secondary" onclick="ui.showMenu()">MENU PRINCIPAL</button>
+            </div>
+        </div>
+
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+    <script>
+        // --- SINTETIZADOR DE AUDIO (Web Audio API) ---
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playShoot() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playExplosion() {
+                if (!this.ctx) return;
+                const dur = 0.3;
+                const bufferSize = this.ctx.sampleRate * dur;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(50, this.ctx.currentTime + dur);
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + dur);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            }
+
+            playPickup() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        // --- SISTEMA DE DATOS Y LOGROS ---
+        const SHIPS_DATA = [
+            { id: 'scout', name: 'Scout E-1', price: 0, speed: 6, fireRate: 200, hp: 100, color: '#00ffcc' },
+            { id: 'interceptor', name: 'Vanguard X', price: 50, speed: 8, fireRate: 150, hp: 120, color: '#ff0055' },
+            { id: 'dreadnought', name: 'Titan Clean', price: 150, speed: 5, fireRate: 100, hp: 200, color: '#ffcc00' }
+        ];
+
+        const ACHIEVEMENTS_DATA = [
+            { id: 'first_kill', title: 'Primera Limpieza', desc: 'Destruye tu primer basurero espacial', req: 1 },
+            { id: 'collector', title: 'Reciclador Experto', desc: 'Recolecta 25 cristales', req: 25 },
+            { id: 'veteran', title: 'Guardián Galáctico', desc: 'Alcanza 1,000 puntos', req: 1000 }
+        ];
+
+        class StorageManager {
+            constructor() {
+                this.data = JSON.parse(localStorage.getItem('eco_defender_save')) || {
+                    crystals: 0,
+                    unlockedShips: ['scout'],
+                    equippedShip: 'scout',
+                    achievements: [],
+                    stats: { kills: 0, crystalsCollected: 0, highScore: 0 }
+                };
+            }
+
+            save() {
+                localStorage.setItem('eco_defender_save', JSON.stringify(this.data));
+            }
+
+            addCrystals(count) {
+                this.data.crystals += count;
+                this.data.stats.crystalsCollected += count;
+                this.checkAchievements();
+                this.save();
+            }
+
+            addKill() {
+                this.data.stats.kills++;
+                this.checkAchievements();
+                this.save();
+            }
+
+            setHighScore(score) {
+                if (score > this.data.stats.highScore) {
+                    this.data.stats.highScore = score;
+                    this.checkAchievements();
+                    this.save();
+                }
+            }
+
+            checkAchievements() {
+                ACHIEVEMENTS_DATA.forEach(ach => {
+                    if (!this.data.achievements.includes(ach.id)) {
+                        let unlock = false;
+                        if (ach.id === 'first_kill' && this.data.stats.kills >= 1) unlock = true;
+                        if (ach.id === 'collector' && this.data.stats.crystalsCollected >= 25) unlock = true;
+                        if (ach.id === 'veteran' && this.data.stats.highScore >= 1000) unlock = true;
+
+                        if (unlock) {
+                            this.data.achievements.push(ach.id);
+                            ui.showToast(`¡Logro Desbloqueado: ${ach.title}!`);
+                        }
+                    }
+                });
+            }
+        }
+
+        const store = new StorageManager();
+
+        // --- MOTOR DE JUEGO EN CANVAS ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(x, y, color, speed) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.vx = (Math.random() - 0.5) * speed;
+                this.vy = (Math.random() - 0.5) * speed;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.03 + 0.01;
+                this.size = Math.random() * 4 + 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.life);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class Player {
+            constructor(shipData) {
+                this.x = canvas.width / 2;
+                this.y = canvas.height - 100;
+                this.data = shipData;
+                this.hp = shipData.hp;
+                this.maxHp = shipData.hp;
+                this.radius = 20;
+                this.lastShot = 0;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                // Estela de propulsor
+                ctx.fillStyle = '#00ffcc';
+                ctx.beginPath();
+                ctx.arc(0, this.radius + 5 + Math.random()*5, 5, 0, Math.PI*2);
+                ctx.fill();
+
+                // Nave
+                ctx.fillStyle = this.data.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.data.color;
+                ctx.beginPath();
+                ctx.moveTo(0, -this.radius);
+                ctx.lineTo(-this.radius, this.radius);
+                ctx.lineTo(0, this.radius - 5);
+                ctx.lineTo(this.radius, this.radius);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+
+            move(dx, dy) {
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x + dx * this.data.speed));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y + dy * this.data.speed));
+            }
+        }
+
+        class Game {
+            constructor() {
+                this.active = false;
+                this.score = 0;
+                this.sessionCrystals = 0;
+                this.keys = {};
+                this.particles = [];
+                this.bullets = [];
+                this.enemies = [];
+                this.crystals = [];
+                this.stars = Array.from({length: 80}, () => ({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speed: Math.random() * 1.5 + 0.5
+                }));
+                
+                this.setupControls();
+            }
+
+            setupControls() {
+                window.addEventListener('keydown', e => this.keys[e.code] = true);
+                window.addEventListener('keyup', e => this.keys[e.code] = false);
+
+                // Controles Táctiles Básicos
+                const touchFire = document.getElementById('touch-fire');
+                touchFire.addEventListener('touchstart', (e) => { e.preventDefault(); this.keys['Space'] = true; });
+                touchFire.addEventListener('touchend', (e) => { e.preventDefault(); this.keys['Space'] = false; });
+            }
+
+            start() {
+                sfx.init();
+                const equippedData = SHIPS_DATA.find(s => s.id === store.data.equippedShip);
+                this.player = new Player(equippedData);
+                this.score = 0;
+                this.sessionCrystals = 0;
+                this.bullets = [];
+                this.enemies = [];
+                this.crystals = [];
+                this.particles = [];
+                this.active = true;
+
+                ui.hideAllOverlays();
+                ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
+                
+                this.lastSpawn = Date.now();
+                requestAnimationFrame(() => this.loop());
+            }
+
+            spawnEnemy() {
+                this.enemies.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: -30,
+                    radius: 18,
+                    speed: Math.random() * 2 + 1.5,
+                    hp: 2,
+                    color: '#ff0055'
+                });
+            }
+
+            createExplosion(x, y, color, count = 15) {
+                for(let i=0; i<count; i++) {
+                    this.particles.push(new Particle(x, y, color, 8));
+                }
+            }
+
+            loop() {
+                if (!this.active) return;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Fondo Parallax Estrellado
+                ctx.fillStyle = '#ffffff';
+                this.stars.forEach(star => {
+                    star.y += star.speed;
+                    if (star.y > canvas.height) star.y = 0;
+                    ctx.globalAlpha = Math.random() * 0.5 + 0.3;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+                    ctx.fill();
+                });
+                ctx.globalAlpha = 1.0;
+
+                // Control Jugador
+                let dx = 0, dy = 0;
+                if (this.keys['ArrowLeft'] || this.keys['KeyA']) dx -= 1;
+                if (this.keys['ArrowRight'] || this.keys['KeyD']) dx += 1;
+                if (this.keys['ArrowUp'] || this.keys['KeyW']) dy -= 1;
+                if (this.keys['ArrowDown'] || this.keys['KeyS']) dy += 1;
+                this.player.move(dx, dy);
+
+                // Disparo
+                if (this.keys['Space'] && Date.now() - this.player.lastShot > this.player.data.fireRate) {
+                    this.bullets.push({
+                        x: this.player.x,
+                        y: this.player.y - this.player.radius,
+                        speed: 12,
+                        radius: 4
+                    });
+                    sfx.playShoot();
+                    this.player.lastShot = Date.now();
+                }
+
+                // Generación de Enemigos
+                if (Date.now() - this.lastSpawn > 1000) {
+                    this.spawnEnemy();
+                    this.lastSpawn = Date.now();
+                }
+
+                // Actualizar Balas
+                this.bullets.forEach((b, bi) => {
+                    b.y -= b.speed;
+                    ctx.fillStyle = '#00ffcc';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#00ffcc';
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    if (b.y < -10) this.bullets.splice(bi, 1);
+                });
+
+                // Actualizar Cristales
+                this.crystals.forEach((c, ci) => {
+                    c.y += c.speed;
+                    ctx.fillStyle = '#ffcc00';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#ffcc00';
+                    ctx.beginPath();
+                    ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+
+                    // Colisión con Jugador
+                    const dist = Math.hypot(c.x - this.player.x, c.y - this.player.y);
+                    if (dist < c.radius + this.player.radius) {
+                        store.addCrystals(1);
+                        this.sessionCrystals++;
+                        sfx.playPickup();
+                        this.crystals.splice(ci, 1);
+                        ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
+                    } else if (c.y > canvas.height + 10) {
+                        this.crystals.splice(ci, 1);
+                    }
+                });
+
+                // Actualizar Enemigos
+                this.enemies.forEach((e, ei) => {
+                    e.y += e.speed;
+
+                    // Dibujar Basura Espacial (Polígono regular)
+                    ctx.fillStyle = e.color;
+                    ctx.beginPath();
+                    ctx.arc(e.x, e.y, e.radius, 0, Math.PI*2);
+                    ctx.fill();
+
+                    // Colisión con Balas
+                    this.bullets.forEach((b, bi) => {
+                        const dist = Math.hypot(b.x - e.x, b.y - e.y);
+                        if (dist < b.radius + e.radius) {
+                            e.hp--;
+                            this.bullets.splice(bi, 1);
+                            if (e.hp <= 0) {
+                                this.createExplosion(e.x, e.y, e.color);
+                                sfx.playExplosion();
+                                store.addKill();
+                                this.score += 100;
+
+                                // Chance de drop cristal
+                                if (Math.random() < 0.6) {
+                                    this.crystals.push({
+                                        x: e.x, y: e.y, radius: 6, speed: 2
+                                    });
+                                }
+
+                                this.enemies.splice(ei, 1);
+                                ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
+                            }
+                        }
+                    });
+
+                    // Colisión con Jugador
+                    const distPlayer = Math.hypot(e.x - this.player.x, e.y - this.player.y);
+                    if (distPlayer < e.radius + this.player.radius) {
+                        this.createExplosion(e.x, e.y, '#ff0055', 20);
+                        sfx.playExplosion();
+                        this.player.hp -= 20;
+                        this.enemies.splice(ei, 1);
+                        ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
+
+                        if (this.player.hp <= 0) {
+                            this.gameOver();
+                        }
+                    }
+
+                    if (e.y > canvas.height + 20) this.enemies.splice(ei, 1);
+                });
+
+                // Partículas
+                this.particles.forEach((p, pi) => {
+                    p.update();
+                    p.draw(ctx);
+                    if (p.life <= 0) this.particles.splice(pi, 1);
+                });
+
+                // Dibujar Jugador
+                this.player.draw(ctx);
+
+                requestAnimationFrame(() => this.loop());
+            }
+
+            gameOver() {
+                this.active = false;
+                store.setHighScore(this.score);
+                ui.showGameOver(this.score, this.sessionCrystals);
+            }
+        }
+
+        // --- GESTIÓN DE INTERFAZ DE USUARIO ---
+        class UI {
+            constructor() {
+                this.menuOverlay = document.getElementById('menu-overlay');
+                this.shopOverlay = document.getElementById('shop-overlay');
+                this.achievementsOverlay = document.getElementById('achievements-overlay');
+                this.gameoverOverlay = document.getElementById('gameover-overlay');
+            }
+
+            hideAllOverlays() {
+                document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
+            }
+
+            showMenu() {
+                this.hideAllOverlays();
+                this.menuOverlay.classList.remove('hidden');
+            }
+
+            updateHUD(hp, maxHp, score, crystals) {
+                const pct = Math.max(0, (hp / maxHp) * 100);
+                document.getElementById('health-bar').style.width = `${pct}%`;
+                document.getElementById('score-val').innerText = score;
+                document.getElementById('crystals-val').innerText = crystals;
+            }
+
+            toggleShop(show) {
+                this.hideAllOverlays();
+                if (show) {
+                    this.renderShop();
+                    this.shopOverlay.classList.remove('hidden');
+                } else {
+                    this.showMenu();
+                }
+            }
+
+            renderShop() {
+                document.getElementById('shop-crystals').innerText = store.data.crystals;
+                const container = document.getElementById('shop-container');
+                container.innerHTML = '';
+
+                SHIPS_DATA.forEach(ship => {
+                    const isUnlocked = store.data.unlockedShips.includes(ship.id);
+                    const isEquipped = store.data.equippedShip === ship.id;
+
+                    const item = document.createElement('div');
+                    item.className = `shop-item ${isEquipped ? 'equipped' : ''}`;
+                    item.innerHTML = `
+                        <h4>${ship.name}</h4>
+                        <div class="price">${isUnlocked ? 'DESBLOQUEADO' : `💎 ${ship.price}`}</div>
+                        <button class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;">
+                            ${isEquipped ? 'EQUIPADO' : (isUnlocked ? 'EQUIPAR' : 'COMPRAR')}
+                        </button>
+                    `;
+
+                    const btn = item.querySelector('button');
+                    btn.onclick = () => {
+                        if (isUnlocked) {
+                            store.data.equippedShip = ship.id;
+                            store.save();
+                            this.renderShop();
+                        } else if (store.data.crystals >= ship.price) {
+                            store.data.crystals -= ship.price;
+                            store.data.unlockedShips.push(ship.id);
+                            store.data.equippedShip = ship.id;
+                            store.save();
+                            this.renderShop();
+                        } else {
+                            this.showToast('¡Cristales insuficientes!');
+                        }
+                    };
+
+                    container.appendChild(item);
+                });
+            }
+
+            toggleAchievements(show) {
+                this.hideAllOverlays();
+                if (show) {
+                    this.renderAchievements();
+                    this.achievementsOverlay.classList.remove('hidden');
+                } else {
+                    this.showMenu();
+                }
+            }
+
+            renderAchievements() {
+                const container = document.getElementById('achievements-container');
+                container.innerHTML = '';
+
+                ACHIEVEMENTS_DATA.forEach(ach => {
+                    const isUnlocked = store.data.achievements.includes(ach.id);
+                    const item = document.createElement('div');
+                    item.className = 'shop-item';
+                    item.style.opacity = isUnlocked ? '1' : '0.4';
+                    item.innerHTML = `
+                        <h4>${isUnlocked ? '🏆' : '🔒'} ${ach.title}</h4>
+                        <p style="font-size:0.8rem; color:#aaa;">${ach.desc}</p>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+
+            showGameOver(score, crystals) {
+                this.hideAllOverlays();
+                document.getElementById('gameover-stats').innerText = `Puntaje: ${score} | Cristales Recolectados: ${crystals}`;
+                this.gameoverOverlay.classList.remove('hidden');
+            }
+
+            showToast(msg) {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `🏆 <span>${msg}</span>`;
+                container.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+        }
+
+        const ui = new UI();
+        const game = new Game();
+    </script>
+</body>
+</html>
