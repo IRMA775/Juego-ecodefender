@@ -6,12 +6,13 @@
     <title>Eco-Defender: Misión Planeta Clean</title>
     <style>
         :root {
-            --bg-color: #0b0f19;
+            --bg-deep: #050814;
             --primary: #00ffcc;
             --secondary: #ff0055;
             --accent: #ffcc00;
-            --panel-bg: rgba(16, 24, 48, 0.85);
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --panel-bg: rgba(11, 17, 32, 0.9);
+            --border-glow: rgba(0, 255, 204, 0.4);
+            --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         * {
@@ -26,7 +27,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: var(--bg-color);
+            background-color: var(--bg-deep);
             font-family: var(--font-family);
             color: #fff;
         }
@@ -60,33 +61,33 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0,255,204,0.5);
+            font-size: 1.1rem;
+            font-weight: 700;
         }
 
         .hud-card {
             background: var(--panel-bg);
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            padding: 10px 20px;
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
+            border: 1px solid var(--border-glow);
+            padding: 12px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
         .health-bar-container {
-            width: 150px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
+            width: 180px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
             overflow: hidden;
-            margin-top: 5px;
+            margin-top: 6px;
         }
 
         .health-bar {
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #ff0055, #00ffcc);
-            transition: width 0.2s ease;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .overlay {
@@ -95,64 +96,69 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(7, 10, 19, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(3, 5, 12, 0.85);
+            backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             pointer-events: auto;
             z-index: 10;
+            transition: opacity 0.3s ease;
         }
 
         .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
             display: none;
         }
 
         .menu-card {
             background: var(--panel-bg);
             border: 2px solid var(--primary);
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
-            border-radius: 16px;
-            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.25);
+            border-radius: 20px;
+            padding: 35px;
             width: 90%;
-            max-width: 500px;
+            max-width: 520px;
             text-align: center;
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             color: var(--primary);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px var(--primary);
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
         }
 
         p.subtitle {
-            color: #aaa;
+            color: #8b9bb4;
             margin-bottom: 25px;
             font-size: 0.95rem;
+            letter-spacing: 1px;
         }
 
         .btn {
-            background: linear-gradient(45deg, #00ffcc, #0099ff);
+            background: linear-gradient(135deg, var(--primary), #0099ff);
             border: none;
-            color: #000;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            color: #050814;
+            padding: 14px 32px;
+            font-size: 1.05rem;
+            font-weight: 800;
             border-radius: 30px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
             margin: 8px;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.8);
         }
 
         .btn-secondary {
@@ -168,98 +174,108 @@
 
         .shop-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 12px;
             margin: 20px 0;
-            max-height: 250px;
+            max-height: 280px;
             overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .shop-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .shop-grid::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
         }
 
         .shop-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
+            transition: all 0.2s ease;
         }
 
         .shop-item.equipped {
             border-color: var(--accent);
-            background: rgba(255, 204, 0, 0.1);
+            background: rgba(255, 204, 0, 0.05);
         }
 
-        .shop-item h4 {
+        .shop-info {
+            text-align: left;
+        }
+
+        .shop-info h4 {
             color: #fff;
-            margin-bottom: 5px;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
         }
 
-        .shop-item .price {
-            color: var(--accent);
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+        .shop-info p {
+            color: #8b9bb4;
+            font-size: 0.85rem;
         }
 
         .toast-container {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 30px;
+            right: 30px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             pointer-events: none;
             z-index: 20;
         }
 
         .toast {
-            background: rgba(16, 24, 48, 0.95);
+            background: var(--panel-bg);
             border-left: 4px solid var(--accent);
-            padding: 12px 20px;
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            animation: slideIn 0.3s ease forwards;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 14px 22px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            animation: slideIn 0.3s cubic-bezier(0, 0.55, 0.45, 1) forwards;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 600;
         }
 
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
+            from { transform: translateX(120%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
         .touch-controls {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
             display: none;
             justify-content: space-between;
             align-items: flex-end;
             pointer-events: auto;
         }
 
-        .joystick-zone {
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            position: relative;
-        }
-
         .fire-btn {
-            width: 80px;
-            height: 80px;
+            width: 85px;
+            height: 85px;
             border-radius: 50%;
-            background: rgba(255, 0, 85, 0.4);
+            background: rgba(255, 0, 85, 0.3);
             border: 2px solid var(--secondary);
             color: #fff;
-            font-weight: bold;
+            font-weight: 800;
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
         }
 
         @media (max-width: 768px) {
@@ -275,60 +291,62 @@
         <div class="ui-layer">
             <div class="hud">
                 <div class="hud-card">
-                    <div>ENERGÍA</div>
+                    <div style="font-size:0.8rem; color:#8b9bb4; letter-spacing:1px;">CORAZA / HP</div>
                     <div class="health-bar-container">
                         <div id="health-bar" class="health-bar"></div>
                     </div>
                 </div>
                 <div class="hud-card" style="text-align: right;">
-                    <div>PUNTAJE: <span id="score-val" style="color:var(--primary)">0</span></div>
-                    <div style="font-size:0.9rem; color:var(--accent);">CRISTALES: <span id="crystals-val">0</span></div>
+                    <div style="font-size: 0.8rem; color:#8b9bb4; letter-spacing:1px;">PUNTAJE</div>
+                    <div style="font-size: 1.4rem; color:var(--primary);" id="score-val">0</div>
+                    <div style="font-size:0.85rem; color:var(--accent); margin-top:2px;">CRISTALES: <span id="crystals-val">0</span></div>
                 </div>
             </div>
 
             <div class="touch-controls">
-                <div id="touch-move" class="joystick-zone"></div>
+                <div id="joystick-base" style="width:120px; height:120px; background:rgba(255,255,255,0.05); border:2px dashed rgba(255,255,255,0.2); border-radius:50%; position:relative;"></div>
                 <div id="touch-fire" class="fire-btn">FUEGO</div>
             </div>
         </div>
 
-        <!-- MENU INICIO -->
+        <!-- MENU PRINCIPAL -->
         <div id="menu-overlay" class="overlay">
             <div class="menu-card">
                 <h1>Eco-Defender</h1>
-                <p class="subtitle">Misión Planeta Clean v1.0</p>
-                <button class="btn" onclick="game.start()">JUGAR</button>
-                <button class="btn btn-secondary" onclick="ui.toggleShop(true)">HANGAR / TIENDA</button>
+                <p class="subtitle">Misión Planeta Clean • Edición Pro</p>
+                <button class="btn" onclick="game.start()">INICIAR MISIÓN</button>
+                <br>
+                <button class="btn btn-secondary" onclick="ui.toggleShop(true)">HANGAR & MEJORAS</button>
                 <button class="btn btn-secondary" onclick="ui.toggleAchievements(true)">LOGROS</button>
             </div>
         </div>
 
-        <!-- MENU TIENDA -->
+        <!-- TIENDA / HANGAR -->
         <div id="shop-overlay" class="overlay hidden">
             <div class="menu-card">
-                <h1>Hangar de Naves</h1>
-                <p class="subtitle">Cristales Disponibles: <span id="shop-crystals" style="color:var(--accent)">0</span></p>
+                <h1>Hangar Galáctico</h1>
+                <p class="subtitle">Cristales Energéticos: <span id="shop-crystals" style="color:var(--accent)">0</span></p>
                 <div class="shop-grid" id="shop-container"></div>
-                <button class="btn btn-secondary" onclick="ui.toggleShop(false)">VOLVER</button>
+                <button class="btn btn-secondary" onclick="ui.toggleShop(false)">VOLVER AL MENÚ</button>
             </div>
         </div>
 
-        <!-- MENU LOGROS -->
+        <!-- LOGROS -->
         <div id="achievements-overlay" class="overlay hidden">
             <div class="menu-card">
-                <h1>Logros</h1>
-                <div class="shop-grid" id="achievements-container" style="grid-template-columns:1fr;"></div>
-                <button class="btn btn-secondary" onclick="ui.toggleAchievements(false)">VOLVER</button>
+                <h1>Medallas & Logros</h1>
+                <div class="shop-grid" id="achievements-container"></div>
+                <button class="btn btn-secondary" onclick="ui.toggleAchievements(false)">VOLVER AL MENÚ</button>
             </div>
         </div>
 
-        <!-- GAMEOVER -->
+        <!-- GAME OVER -->
         <div id="gameover-overlay" class="overlay hidden">
             <div class="menu-card">
-                <h1 style="color:var(--secondary)">MISION FALLIDA</h1>
+                <h1 style="color:var(--secondary)">Misión Fallida</h1>
                 <p class="subtitle" id="gameover-stats">Puntaje Final: 0</p>
                 <button class="btn" onclick="game.start()">REINTENTAR</button>
-                <button class="btn btn-secondary" onclick="ui.showMenu()">MENU PRINCIPAL</button>
+                <button class="btn btn-secondary" onclick="ui.showMenu()">MENÚ PRINCIPAL</button>
             </div>
         </div>
 
@@ -336,116 +354,111 @@
     </div>
 
     <script>
-        // --- SINTETIZADOR DE AUDIO (Web Audio API) ---
-        class SoundFX {
+        // --- SINTETIZADOR DE AUDIO AVANZADO (Web Audio API) ---
+        class SoundSystem {
             constructor() {
                 this.ctx = null;
             }
-
             init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
             }
-
-            playShoot() {
+            playLaser() {
                 if (!this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
+                osc.stop(this.ctx.currentTime + 0.08);
             }
-
             playExplosion() {
                 if (!this.ctx) return;
-                const dur = 0.3;
-                const bufferSize = this.ctx.sampleRate * dur;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const dur = 0.35;
+                const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
                 const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
+                for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
                 const noise = this.ctx.createBufferSource();
                 noise.buffer = buffer;
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
-                filter.frequency.linearRampToValueAtTime(50, this.ctx.currentTime + dur);
+                filter.frequency.setValueAtTime(500, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + dur);
                 const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
                 gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + dur);
                 noise.connect(filter);
                 filter.connect(gain);
                 gain.connect(this.ctx.destination);
                 noise.start();
             }
-
             playPickup() {
                 if (!this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(1046.50, this.ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.frequency.setValueAtTime(587.33, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1174.66, this.ctx.currentTime + 0.12);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.15);
+                osc.stop(this.ctx.currentTime + 0.12);
             }
         }
+        const sfx = new SoundSystem();
 
-        const sfx = new SoundFX();
-
-        // --- SISTEMA DE DATOS Y LOGROS ---
-        const SHIPS_DATA = [
-            { id: 'scout', name: 'Scout E-1', price: 0, speed: 6, fireRate: 200, hp: 100, color: '#00ffcc' },
-            { id: 'interceptor', name: 'Vanguard X', price: 50, speed: 8, fireRate: 150, hp: 120, color: '#ff0055' },
-            { id: 'dreadnought', name: 'Titan Clean', price: 150, speed: 5, fireRate: 100, hp: 200, color: '#ffcc00' }
+        // --- DATOS DE NAVES Y PROGRESIÓN ---
+        const SHIPS = [
+            { id: 'scout', name: 'Scout E-1 (Base)', price: 0, speed: 7, fireRate: 180, hp: 100, color: '#00ffcc' },
+            { id: 'interceptor', name: 'Vanguard X', price: 40, speed: 9, fireRate: 130, hp: 130, color: '#ff0055' },
+            { id: 'dreadnought', name: 'Titan Clean Prime', price: 120, speed: 5, fireRate: 90, hp: 220, color: '#ffcc00' }
         ];
 
-        const ACHIEVEMENTS_DATA = [
-            { id: 'first_kill', title: 'Primera Limpieza', desc: 'Destruye tu primer basurero espacial', req: 1 },
-            { id: 'collector', title: 'Reciclador Experto', desc: 'Recolecta 25 cristales', req: 25 },
-            { id: 'veteran', title: 'Guardián Galáctico', desc: 'Alcanza 1,000 puntos', req: 1000 }
+        const ACHIEVEMENTS = [
+            { id: 'first_debris', title: 'Primera Limpieza', desc: 'Destruye tu primera unidad de basura', goal: 1 },
+            { id: 'collector_20', title: 'Reciclador Activo', desc: 'Recolecta 20 cristales energéticos', goal: 20 },
+            { id: 'veteran_score', title: 'Guardián del Planeta', desc: 'Alcanza un puntaje de 1,500 puntos', goal: 1500 }
         ];
 
-        class StorageManager {
+        class PlayerData {
             constructor() {
-                this.data = JSON.parse(localStorage.getItem('eco_defender_save')) || {
-                    crystals: 0,
-                    unlockedShips: ['scout'],
-                    equippedShip: 'scout',
-                    achievements: [],
-                    stats: { kills: 0, crystalsCollected: 0, highScore: 0 }
-                };
+                this.load();
             }
-
+            load() {
+                const saved = JSON.parse(localStorage.getItem('eco_defender_pro_save'));
+                if (saved) {
+                    this.data = saved;
+                } else {
+                    this.data = {
+                        crystals: 0,
+                        unlockedShips: ['scout'],
+                        equippedShip: 'scout',
+                        achievements: [],
+                        stats: { debrisDestroyed: 0, crystalsCollected: 0, highScore: 0 }
+                    };
+                    this.save();
+                }
+            }
             save() {
-                localStorage.setItem('eco_defender_save', JSON.stringify(this.data));
+                localStorage.setItem('eco_defender_pro_save', JSON.stringify(this.data));
             }
-
-            addCrystals(count) {
-                this.data.crystals += count;
-                this.data.stats.crystalsCollected += count;
+            addCrystals(n) {
+                this.data.crystals += n;
+                this.data.stats.crystalsCollected += n;
                 this.checkAchievements();
                 this.save();
             }
-
-            addKill() {
-                this.data.stats.kills++;
+            addDebris() {
+                this.data.stats.debrisDestroyed++;
                 this.checkAchievements();
                 this.save();
             }
-
             setHighScore(score) {
                 if (score > this.data.stats.highScore) {
                     this.data.stats.highScore = score;
@@ -453,27 +466,25 @@
                     this.save();
                 }
             }
-
             checkAchievements() {
-                ACHIEVEMENTS_DATA.forEach(ach => {
+                ACHIEVEMENTS.forEach(ach => {
                     if (!this.data.achievements.includes(ach.id)) {
                         let unlock = false;
-                        if (ach.id === 'first_kill' && this.data.stats.kills >= 1) unlock = true;
-                        if (ach.id === 'collector' && this.data.stats.crystalsCollected >= 25) unlock = true;
-                        if (ach.id === 'veteran' && this.data.stats.highScore >= 1000) unlock = true;
+                        if (ach.id === 'first_debris' && this.data.stats.debrisDestroyed >= ach.goal) unlock = true;
+                        if (ach.id === 'collector_20' && this.data.stats.crystalsCollected >= ach.goal) unlock = true;
+                        if (ach.id === 'veteran_score' && this.data.stats.highScore >= ach.goal) unlock = true;
 
                         if (unlock) {
                             this.data.achievements.push(ach.id);
-                            ui.showToast(`¡Logro Desbloqueado: ${ach.title}!`);
+                            ui.showToast(`🏆 ¡Logro Desbloqueado: ${ach.title}!`);
                         }
                     }
                 });
             }
         }
+        const profile = new PlayerData();
 
-        const store = new StorageManager();
-
-        // --- MOTOR DE JUEGO EN CANVAS ---
+        // --- MOTOR CANVAS 2D ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -486,22 +497,17 @@
 
         class Particle {
             constructor(x, y, color, speed) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
+                this.x = x; this.y = y; this.color = color;
                 this.vx = (Math.random() - 0.5) * speed;
                 this.vy = (Math.random() - 0.5) * speed;
                 this.life = 1.0;
-                this.decay = Math.random() * 0.03 + 0.01;
+                this.decay = Math.random() * 0.03 + 0.015;
                 this.size = Math.random() * 4 + 2;
             }
-
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                this.x += this.vx; this.y += this.vy;
                 this.life -= this.decay;
             }
-
             draw(ctx) {
                 ctx.save();
                 ctx.globalAlpha = Math.max(0, this.life);
@@ -513,44 +519,41 @@
             }
         }
 
-        class Player {
-            constructor(shipData) {
+        class Ship {
+            constructor(config) {
+                this.config = config;
                 this.x = canvas.width / 2;
-                this.y = canvas.height - 100;
-                this.data = shipData;
-                this.hp = shipData.hp;
-                this.maxHp = shipData.hp;
-                this.radius = 20;
+                this.y = canvas.height - 120;
+                this.hp = config.hp;
+                this.maxHp = config.hp;
+                this.radius = 22;
                 this.lastShot = 0;
             }
-
             draw(ctx) {
                 ctx.save();
                 ctx.translate(this.x, this.y);
-                
-                // Estela de propulsor
-                ctx.fillStyle = '#00ffcc';
+
+                // Estela propulsora
+                ctx.fillStyle = this.config.color;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = this.config.color;
                 ctx.beginPath();
-                ctx.arc(0, this.radius + 5 + Math.random()*5, 5, 0, Math.PI*2);
+                ctx.arc(0, this.radius + 6 + Math.random() * 4, 4, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Nave
-                ctx.fillStyle = this.data.color;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = this.data.color;
+                // Diseño nave
                 ctx.beginPath();
                 ctx.moveTo(0, -this.radius);
-                ctx.lineTo(-this.radius, this.radius);
-                ctx.lineTo(0, this.radius - 5);
-                ctx.lineTo(this.radius, this.radius);
+                ctx.lineTo(-this.radius, this.radius - 4);
+                ctx.lineTo(0, this.radius - 8);
+                ctx.lineTo(this.radius, this.radius - 4);
                 ctx.closePath();
                 ctx.fill();
                 ctx.restore();
             }
-
             move(dx, dy) {
-                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x + dx * this.data.speed));
-                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y + dy * this.data.speed));
+                this.x = Math.max(this.radius, Math.min(canvas.width - this.radius, this.x + dx * this.config.speed));
+                this.y = Math.max(this.radius, Math.min(canvas.height - this.radius, this.y + dy * this.config.speed));
             }
         }
 
@@ -560,34 +563,32 @@
                 this.score = 0;
                 this.sessionCrystals = 0;
                 this.keys = {};
-                this.particles = [];
                 this.bullets = [];
                 this.enemies = [];
                 this.crystals = [];
-                this.stars = Array.from({length: 80}, () => ({
+                this.particles = [];
+                this.stars = Array.from({length: 100}, () => ({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    size: Math.random() * 2 + 1,
-                    speed: Math.random() * 1.5 + 0.5
+                    size: Math.random() * 2 + 0.8,
+                    speed: Math.random() * 1.8 + 0.4
                 }));
-                
-                this.setupControls();
+                this.setupInput();
             }
 
-            setupControls() {
+            setupInput() {
                 window.addEventListener('keydown', e => this.keys[e.code] = true);
                 window.addEventListener('keyup', e => this.keys[e.code] = false);
 
-                // Controles Táctiles Básicos
-                const touchFire = document.getElementById('touch-fire');
-                touchFire.addEventListener('touchstart', (e) => { e.preventDefault(); this.keys['Space'] = true; });
-                touchFire.addEventListener('touchend', (e) => { e.preventDefault(); this.keys['Space'] = false; });
+                const fireBtn = document.getElementById('touch-fire');
+                fireBtn.addEventListener('touchstart', e => { e.preventDefault(); this.keys['Space'] = true; });
+                fireBtn.addEventListener('touchend', e => { e.preventDefault(); this.keys['Space'] = false; });
             }
 
             start() {
                 sfx.init();
-                const equippedData = SHIPS_DATA.find(s => s.id === store.data.equippedShip);
-                this.player = new Player(equippedData);
+                const shipCfg = SHIPS.find(s => s.id === profile.data.equippedShip) || SHIPS[0];
+                this.player = new Ship(shipCfg);
                 this.score = 0;
                 this.sessionCrystals = 0;
                 this.bullets = [];
@@ -596,48 +597,53 @@
                 this.particles = [];
                 this.active = true;
 
-                ui.hideAllOverlays();
-                ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
-                
+                ui.hideAll();
+                ui.updateHUD(this.player.hp, this.player.maxHp, this.score, profile.data.crystals);
                 this.lastSpawn = Date.now();
                 requestAnimationFrame(() => this.loop());
             }
 
             spawnEnemy() {
+                const types = [
+                    { radius: 18, hp: 2, speed: 2.2, color: '#ff0055', score: 100 },
+                    { radius: 26, hp: 4, speed: 1.4, color: '#ff8800', score: 250 }
+                ];
+                const type = types[Math.random() < 0.75 ? 0 : 1];
                 this.enemies.push({
-                    x: Math.random() * (canvas.width - 40) + 20,
-                    y: -30,
-                    radius: 18,
-                    speed: Math.random() * 2 + 1.5,
-                    hp: 2,
-                    color: '#ff0055'
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: -40,
+                    radius: type.radius,
+                    hp: type.hp,
+                    maxHp: type.hp,
+                    speed: type.speed,
+                    color: type.color,
+                    scoreVal: type.score
                 });
             }
 
-            createExplosion(x, y, color, count = 15) {
-                for(let i=0; i<count; i++) {
-                    this.particles.push(new Particle(x, y, color, 8));
+            explode(x, y, color, count = 18) {
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new Particle(x, y, color, 7));
                 }
             }
 
             loop() {
                 if (!this.active) return;
-
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Fondo Parallax Estrellado
+                // Parallax Estelar
                 ctx.fillStyle = '#ffffff';
-                this.stars.forEach(star => {
-                    star.y += star.speed;
-                    if (star.y > canvas.height) star.y = 0;
-                    ctx.globalAlpha = Math.random() * 0.5 + 0.3;
+                this.stars.forEach(s => {
+                    s.y += s.speed;
+                    if (s.y > canvas.height) s.y = 0;
+                    ctx.globalAlpha = Math.random() * 0.4 + 0.4;
                     ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+                    ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                     ctx.fill();
                 });
                 ctx.globalAlpha = 1.0;
 
-                // Control Jugador
+                // Movimiento Nave
                 let dx = 0, dy = 0;
                 if (this.keys['ArrowLeft'] || this.keys['KeyA']) dx -= 1;
                 if (this.keys['ArrowRight'] || this.keys['KeyD']) dx += 1;
@@ -646,19 +652,14 @@
                 this.player.move(dx, dy);
 
                 // Disparo
-                if (this.keys['Space'] && Date.now() - this.player.lastShot > this.player.data.fireRate) {
-                    this.bullets.push({
-                        x: this.player.x,
-                        y: this.player.y - this.player.radius,
-                        speed: 12,
-                        radius: 4
-                    });
-                    sfx.playShoot();
+                if (this.keys['Space'] && Date.now() - this.player.lastShot > this.player.config.fireRate) {
+                    this.bullets.push({ x: this.player.x, y: this.player.y - this.player.radius, speed: 13, radius: 4 });
+                    sfx.playLaser();
                     this.player.lastShot = Date.now();
                 }
 
-                // Generación de Enemigos
-                if (Date.now() - this.lastSpawn > 1000) {
+                // Oleada de enemigos
+                if (Date.now() - this.lastSpawn > 900) {
                     this.spawnEnemy();
                     this.lastSpawn = Date.now();
                 }
@@ -670,10 +671,9 @@
                     ctx.shadowBlur = 10;
                     ctx.shadowColor = '#00ffcc';
                     ctx.beginPath();
-                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI*2);
+                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.shadowBlur = 0;
-
                     if (b.y < -10) this.bullets.splice(bi, 1);
                 });
 
@@ -681,22 +681,21 @@
                 this.crystals.forEach((c, ci) => {
                     c.y += c.speed;
                     ctx.fillStyle = '#ffcc00';
-                    ctx.shadowBlur = 8;
+                    ctx.shadowBlur = 10;
                     ctx.shadowColor = '#ffcc00';
                     ctx.beginPath();
-                    ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2);
+                    ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.shadowBlur = 0;
 
-                    // Colisión con Jugador
                     const dist = Math.hypot(c.x - this.player.x, c.y - this.player.y);
                     if (dist < c.radius + this.player.radius) {
-                        store.addCrystals(1);
+                        profile.addCrystals(1);
                         this.sessionCrystals++;
                         sfx.playPickup();
                         this.crystals.splice(ci, 1);
-                        ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
-                    } else if (c.y > canvas.height + 10) {
+                        ui.updateHUD(this.player.hp, this.player.maxHp, this.score, profile.data.crystals);
+                    } else if (c.y > canvas.height + 20) {
                         this.crystals.splice(ci, 1);
                     }
                 });
@@ -704,53 +703,46 @@
                 // Actualizar Enemigos
                 this.enemies.forEach((e, ei) => {
                     e.y += e.speed;
-
-                    // Dibujar Basura Espacial (Polígono regular)
                     ctx.fillStyle = e.color;
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = e.color;
                     ctx.beginPath();
-                    ctx.arc(e.x, e.y, e.radius, 0, Math.PI*2);
+                    ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
                     ctx.fill();
+                    ctx.shadowBlur = 0;
 
-                    // Colisión con Balas
+                    // Colisión Balas vs Enemigos
                     this.bullets.forEach((b, bi) => {
-                        const dist = Math.hypot(b.x - e.x, b.y - e.y);
-                        if (dist < b.radius + e.radius) {
+                        if (Math.hypot(b.x - e.x, b.y - e.y) < b.radius + e.radius) {
                             e.hp--;
                             this.bullets.splice(bi, 1);
                             if (e.hp <= 0) {
-                                this.createExplosion(e.x, e.y, e.color);
+                                this.explode(e.x, e.y, e.color);
                                 sfx.playExplosion();
-                                store.addKill();
-                                this.score += 100;
+                                profile.addDebris();
+                                this.score += e.scoreVal;
 
-                                // Chance de drop cristal
-                                if (Math.random() < 0.6) {
-                                    this.crystals.push({
-                                        x: e.x, y: e.y, radius: 6, speed: 2
-                                    });
+                                if (Math.random() < 0.65) {
+                                    this.crystals.push({ x: e.x, y: e.y, radius: 7, speed: 2.2 });
                                 }
-
                                 this.enemies.splice(ei, 1);
-                                ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
+                                ui.updateHUD(this.player.hp, this.player.maxHp, this.score, profile.data.crystals);
                             }
                         }
                     });
 
-                    // Colisión con Jugador
-                    const distPlayer = Math.hypot(e.x - this.player.x, e.y - this.player.y);
-                    if (distPlayer < e.radius + this.player.radius) {
-                        this.createExplosion(e.x, e.y, '#ff0055', 20);
+                    // Colisión Enemigo vs Jugador
+                    if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < e.radius + this.player.radius) {
+                        this.explode(e.x, e.y, '#ff0055', 25);
                         sfx.playExplosion();
-                        this.player.hp -= 20;
+                        this.player.hp -= 25;
                         this.enemies.splice(ei, 1);
-                        ui.updateHUD(this.player.hp, this.player.maxHp, this.score, store.data.crystals);
+                        ui.updateHUD(this.player.hp, this.player.maxHp, this.score, profile.data.crystals);
 
-                        if (this.player.hp <= 0) {
-                            this.gameOver();
-                        }
+                        if (this.player.hp <= 0) this.gameOver();
                     }
 
-                    if (e.y > canvas.height + 20) this.enemies.splice(ei, 1);
+                    if (e.y > canvas.height + 30) this.enemies.splice(ei, 1);
                 });
 
                 // Partículas
@@ -760,137 +752,125 @@
                     if (p.life <= 0) this.particles.splice(pi, 1);
                 });
 
-                // Dibujar Jugador
                 this.player.draw(ctx);
-
                 requestAnimationFrame(() => this.loop());
             }
 
             gameOver() {
                 this.active = false;
-                store.setHighScore(this.score);
+                profile.setHighScore(this.score);
                 ui.showGameOver(this.score, this.sessionCrystals);
             }
         }
 
-        // --- GESTIÓN DE INTERFAZ DE USUARIO ---
+        // --- GESTIÓN DE UI ---
         class UI {
             constructor() {
-                this.menuOverlay = document.getElementById('menu-overlay');
-                this.shopOverlay = document.getElementById('shop-overlay');
-                this.achievementsOverlay = document.getElementById('achievements-overlay');
-                this.gameoverOverlay = document.getElementById('gameover-overlay');
+                this.menu = document.getElementById('menu-overlay');
+                this.shop = document.getElementById('shop-overlay');
+                this.achievements = document.getElementById('achievements-overlay');
+                this.gameover = document.getElementById('gameover-overlay');
             }
-
-            hideAllOverlays() {
+            hideAll() {
                 document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
             }
-
             showMenu() {
-                this.hideAllOverlays();
-                this.menuOverlay.classList.remove('hidden');
+                this.hideAll();
+                this.menu.classList.remove('hidden');
             }
-
             updateHUD(hp, maxHp, score, crystals) {
                 const pct = Math.max(0, (hp / maxHp) * 100);
                 document.getElementById('health-bar').style.width = `${pct}%`;
                 document.getElementById('score-val').innerText = score;
                 document.getElementById('crystals-val').innerText = crystals;
             }
-
             toggleShop(show) {
-                this.hideAllOverlays();
+                this.hideAll();
                 if (show) {
                     this.renderShop();
-                    this.shopOverlay.classList.remove('hidden');
+                    this.shop.classList.remove('hidden');
                 } else {
                     this.showMenu();
                 }
             }
-
             renderShop() {
-                document.getElementById('shop-crystals').innerText = store.data.crystals;
+                document.getElementById('shop-crystals').innerText = profile.data.crystals;
                 const container = document.getElementById('shop-container');
                 container.innerHTML = '';
 
-                SHIPS_DATA.forEach(ship => {
-                    const isUnlocked = store.data.unlockedShips.includes(ship.id);
-                    const isEquipped = store.data.equippedShip === ship.id;
+                SHIPS.forEach(ship => {
+                    const unlocked = profile.data.unlockedShips.includes(ship.id);
+                    const equipped = profile.data.equippedShip === ship.id;
 
                     const item = document.createElement('div');
-                    item.className = `shop-item ${isEquipped ? 'equipped' : ''}`;
+                    item.className = `shop-item ${equipped ? 'equipped' : ''}`;
                     item.innerHTML = `
-                        <h4>${ship.name}</h4>
-                        <div class="price">${isUnlocked ? 'DESBLOQUEADO' : `💎 ${ship.price}`}</div>
-                        <button class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;">
-                            ${isEquipped ? 'EQUIPADO' : (isUnlocked ? 'EQUIPAR' : 'COMPRAR')}
+                        <div class="shop-info">
+                            <h4>${ship.name}</h4>
+                            <p>Velocidad: ${ship.speed} | HP: ${ship.hp}</p>
+                        </div>
+                        <button class="btn btn-secondary" style="font-size:0.8rem; padding:8px 16px; margin:0;">
+                            ${equipped ? 'EQUIPADO' : (unlocked ? 'EQUIPAR' : `💎 ${ship.price}`)}
                         </button>
                     `;
 
-                    const btn = item.querySelector('button');
-                    btn.onclick = () => {
-                        if (isUnlocked) {
-                            store.data.equippedShip = ship.id;
-                            store.save();
+                    item.querySelector('button').onclick = () => {
+                        if (unlocked) {
+                            profile.data.equippedShip = ship.id;
+                            profile.save();
                             this.renderShop();
-                        } else if (store.data.crystals >= ship.price) {
-                            store.data.crystals -= ship.price;
-                            store.data.unlockedShips.push(ship.id);
-                            store.data.equippedShip = ship.id;
-                            store.save();
+                        } else if (profile.data.crystals >= ship.price) {
+                            profile.data.crystals -= ship.price;
+                            profile.data.unlockedShips.push(ship.id);
+                            profile.data.equippedShip = ship.id;
+                            profile.save();
                             this.renderShop();
                         } else {
-                            this.showToast('¡Cristales insuficientes!');
+                            this.showToast('⚠️ ¡Cristales insuficientes!');
                         }
                     };
-
                     container.appendChild(item);
                 });
             }
-
             toggleAchievements(show) {
-                this.hideAllOverlays();
+                this.hideAll();
                 if (show) {
                     this.renderAchievements();
-                    this.achievementsOverlay.classList.remove('hidden');
+                    this.achievements.classList.remove('hidden');
                 } else {
                     this.showMenu();
                 }
             }
-
             renderAchievements() {
                 const container = document.getElementById('achievements-container');
                 container.innerHTML = '';
 
-                ACHIEVEMENTS_DATA.forEach(ach => {
-                    const isUnlocked = store.data.achievements.includes(ach.id);
+                ACHIEVEMENTS.forEach(ach => {
+                    const unlocked = profile.data.achievements.includes(ach.id);
                     const item = document.createElement('div');
                     item.className = 'shop-item';
-                    item.style.opacity = isUnlocked ? '1' : '0.4';
+                    item.style.opacity = unlocked ? '1' : '0.45';
                     item.innerHTML = `
-                        <h4>${isUnlocked ? '🏆' : '🔒'} ${ach.title}</h4>
-                        <p style="font-size:0.8rem; color:#aaa;">${ach.desc}</p>
+                        <div class="shop-info">
+                            <h4>${unlocked ? '⭐' : '🔒'} ${ach.title}</h4>
+                            <p>${ach.desc}</p>
+                        </div>
                     `;
                     container.appendChild(item);
                 });
             }
-
             showGameOver(score, crystals) {
-                this.hideAllOverlays();
-                document.getElementById('gameover-stats').innerText = `Puntaje: ${score} | Cristales Recolectados: ${crystals}`;
-                this.gameoverOverlay.classList.remove('hidden');
+                this.hideAll();
+                document.getElementById('gameover-stats').innerText = `Puntaje: ${score} | Cristales: ${crystals}`;
+                this.gameover.classList.remove('hidden');
             }
-
             showToast(msg) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
                 toast.className = 'toast';
-                toast.innerHTML = `🏆 <span>${msg}</span>`;
+                toast.innerHTML = `<span>${msg}</span>`;
                 container.appendChild(toast);
-
-                setTimeout(() => {
-                    toast.remove();
-                }, 3000);
+                setTimeout(() => toast.remove(), 3200);
             }
         }
 
